@@ -4,6 +4,7 @@
  */
 let kittens = [];
 let usedNames = [];
+let loveDirection = .45;
 /**
  * Called when submitting the new Kitten Form
  * This method will pull data from the form
@@ -16,32 +17,38 @@ let usedNames = [];
 function addKitten(event) {
   event.preventDefault()
   let name = event.target.name.value
-
   let nameCheck = usedNames.find(usedNames => usedNames == name)
 
-  if (!nameCheck) {
-    let newKitten = {
-      id: generateId(),
-      name: name,
-      mood: "tolerant",
-      love: 5
-    }
-
-    usedNames.push(name)
-    kittens.push(newKitten)
-    console.log(newKitten)
-
+  if (name == "") {
     //@ts-ignore
     document.getElementById("add-kitten-form").reset();
-
-    saveKittens()
-    drawKittens()
-    playSound("happy")
+    alert("You didn't put a name. Make your cats feel special!")
   } else {
-    //@ts-ignore
-    document.getElementById("add-kitten-form").reset();
-    alert("You have already used this name. Make your cats feel special!")
+    if (!nameCheck) {
+      let newKitten = {
+        id: generateId(),
+        name: name,
+        mood: "tolerant",
+        love: 5
+      }
+
+      usedNames.push(name)
+      kittens.push(newKitten)
+      console.log(newKitten)
+
+      //@ts-ignore
+      document.getElementById("add-kitten-form").reset();
+
+      saveKittens()
+      drawKittens()
+      playSound("happy")
+    } else {
+      //@ts-ignore
+      document.getElementById("add-kitten-form").reset();
+      alert("You have already used this name. Make your cats feel special!")
+    }
   }
+
 
 
 }
@@ -140,7 +147,7 @@ function findKittenById(id) {
 function pet(id) {
   let kitten = findKittenById(id)
 
-  if (Math.random() > .6) {
+  if (Math.random() < loveDirection) {
     kitten.love++
     playSound("happy")
   } else {
@@ -148,14 +155,28 @@ function pet(id) {
     playSound("mad")
   }
 
+  if (kitten.love < 4) {
+    loveDirection = .35
+  } else if (kitten.love == 4) {
+    loveDirection = .4
+  } else if (kitten.love == 5) {
+    loveDirection = .5
+  } else if (kitten.love == 6) {
+    loveDirection = .6
+  } else {
+    loveDirection = .65
+  }
+
   document.getElementById("love-" + id).innerHTML = (kitten.love).toString()
-  console.log(kittens)
   setKittenMood(kitten)
+
+  console.log(kitten)
+  console.log("chance of positive response: " + Math.floor(loveDirection * 100) + "%")
 }
 
 function playSound(mood) {
 
-  var chance = Math.floor(Math.random() * Math.floor(3)) + 1;
+  var chance = Math.floor(Math.random() * Math.round(3)) + 1;
 
   //@ts-ignore
   document.getElementById(mood + chance).play()
@@ -172,9 +193,11 @@ function playSound(mood) {
 function catnip(id) {
   let kitten = findKittenById(id)
   kitten.love = 5
+  loveDirection = .5
   document.getElementById("love-" + id).innerHTML = "5"
   setKittenMood(kitten)
   playSound("happy")
+  console.log("chance of positive response: " + loveDirection * 100 + "%")
 }
 
 /**
